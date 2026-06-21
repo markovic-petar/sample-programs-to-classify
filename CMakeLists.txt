@@ -5,14 +5,9 @@ project(SamplePrograms LANGUAGES C)
 message(STATUS "Detected processor: ${CMAKE_SYSTEM_PROCESSOR}")
 message(STATUS "Compiler: ${CMAKE_C_COMPILER}")
 
-# Common include directories
-set(INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/openssl_examples
-)
-
 # Source directory
 set(SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
+set(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 # Library directories
 if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
@@ -22,8 +17,7 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
     set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib/out/x64/install")
     set(FFTW3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/fftw-3.3.10/out/x64/install")
 
-elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm" OR
-       CMAKE_C_COMPILER MATCHES "arm-linux-gnueabihf")
+elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm")
 
     message(STATUS "Configuring for ARM Cortex-A8...")
     set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/openssl/out/arm-static")
@@ -32,10 +26,9 @@ elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm" OR
 
 else()
 
-    message(WARNING "Unknown processor type, defaulting to host configuration...")
-    set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/openssl/out/x64")
-    set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib/out/x64/install")
-    set(FFTW3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/fftw-3.3.10/out/x64/install")
+    message(FATAL_ERROR "Unsupported processor: ${CMAKE_SYSTEM_PROCESSOR}. "
+                        "Use -DCMAKE_TOOLCHAIN_FILE=toolchain-arm.cmake for ARM, "
+                        "or build natively on x86_64.")
 
 endif()
 
@@ -47,90 +40,72 @@ find_package(FFTW3 REQUIRED)
 ###   EXECUTABLES                                     ###
 #########################################################
 
+function(add_sample_target name)
+    cmake_parse_arguments(ARG "" "" "SOURCES;LIBS" ${ARGN})
+
+    if(NOT ARG_SOURCES)
+        set(ARG_SOURCES ${SOURCE_DIR}/${name}.c)
+    endif()
+
+    add_executable(${name} ${ARG_SOURCES})
+    target_link_libraries(${name} PRIVATE helper ${ARG_LIBS})
+endfunction()
+
+# --- CONFIG (header-only) ---
+
+add_library(config INTERFACE)
+target_include_directories(config INTERFACE ${INCLUDE_DIR})
+
+# --- CRYPTO_DATA (header-only) ---
+
+add_library(crypto_data INTERFACE)
+target_include_directories(crypto_data INTERFACE ${INCLUDE_DIR}/openssl_examples)
+
 # --- HELPER ---
 
-add_library( helper STATIC
+add_library(helper STATIC
     ${SOURCE_DIR}/helper/helper_io.c
     ${SOURCE_DIR}/helper/helper_rng.c
 )
 
-target_include_directories(helper PRIVATE ${INCLUDE_DIRS})
+target_include_directories(helper PUBLIC ${INCLUDE_DIR}/helper)
+target_link_libraries(helper PRIVATE config)
 
 # --- HELPER_TEST ---
 
-add_executable( helper_test
-    ${SOURCE_DIR}/helper/helper_test.c
-)
-
-target_include_directories(helper_test PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(helper_test PRIVATE helper)
+add_sample_target(helper_test SOURCES ${SOURCE_DIR}/helper/helper_test.c)
 
 # --- IDLE ---
 
-add_executable( idle
-    ${SOURCE_DIR}/idle.c
-)
+add_sample_target(idle LIBS config)
 
 #########################################################
 ###   LINALG                                          ###
 #########################################################
 
-target_include_directories(idle PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(idle PRIVATE helper)
-
 # --- VECTOR_ADD ---
 
-add_executable( vector_add
-    ${SOURCE_DIR}/vector_add.c
-)
-
-target_include_directories(vector_add PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(vector_add PRIVATE helper)
+add_sample_target(vector_add)
 
 # --- VECTOR_ADD_FP ---
 
-add_executable( vector_add_fp
-    ${SOURCE_DIR}/vector_add_fp.c
-)
-
-target_include_directories(vector_add_fp PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(vector_add_fp PRIVATE helper)
+add_sample_target(vector_add_fp)
 
 # --- VECTOR_MUL ---
 
-add_executable( vector_mul
-    ${SOURCE_DIR}/vector_mul.c
-)
-
-target_include_directories(vector_mul PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(vector_mul PRIVATE helper)
+add_sample_target(vector_mul)
 
 # --- VECTOR_MUL_FP ---
 
-add_executable( vector_mul_fp
-    ${SOURCE_DIR}/vector_mul_fp.c
-)
-
-target_include_directories(vector_mul_fp PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(vector_mul_fp PRIVATE helper)
+add_sample_target(vector_mul_fp)
 
 # --- MATRIX_MUL ---
 
-add_executable( matrix_mul
-    ${SOURCE_DIR}/matrix_mul.c
-)
-
-target_include_directories(matrix_mul PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(matrix_mul PRIVATE helper)
+add_sample_target(matrix_mul)
 
 # --- MATRIX_MUL_FP ---
 
-add_executable( matrix_mul_fp
-    ${SOURCE_DIR}/matrix_mul_fp.c
-)
-
-target_include_directories(matrix_mul_fp PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(matrix_mul_fp PRIVATE helper)
+add_sample_target(matrix_mul_fp)
 
 #########################################################
 ###   CRYPTO                                          ###
@@ -138,75 +113,35 @@ target_link_libraries(matrix_mul_fp PRIVATE helper)
 
 # --- RSA_ENCRYPT ---
 
-add_executable( rsa_encrypt
-    ${SOURCE_DIR}/openssl_examples/rsa_encrypt.c
-)
-
-target_include_directories(rsa_encrypt PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(rsa_encrypt PRIVATE helper OpenSSL::Crypto)
+add_sample_target(rsa_encrypt SOURCES ${SOURCE_DIR}/openssl_examples/rsa_encrypt.c LIBS OpenSSL::Crypto crypto_data)
 
 # --- AESGCM ---
 
-add_executable( aesgmc
-    ${SOURCE_DIR}/openssl_examples/aesgmc.c
-)
-
-target_include_directories(aesgmc PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(aesgmc PRIVATE helper OpenSSL::Crypto)
+add_sample_target(aesgmc SOURCES ${SOURCE_DIR}/openssl_examples/aesgmc.c LIBS OpenSSL::Crypto crypto_data)
 
 # --- CRYPTO_RSA_ENCRYPT ---
 
-add_executable( crypto_rsa_encrypt
-    ${SOURCE_DIR}/crypto_rsa_encrypt.c
-)
-
-target_include_directories(crypto_rsa_encrypt PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(crypto_rsa_encrypt PRIVATE helper OpenSSL::Crypto)
+add_sample_target(crypto_rsa_encrypt SOURCES ${SOURCE_DIR}/crypto_rsa_encrypt.c LIBS OpenSSL::Crypto crypto_data)
 
 # --- CRYPTO_RSA_DECRYPT ---
 
-add_executable( crypto_rsa_decrypt
-    ${SOURCE_DIR}/crypto_rsa_decrypt.c
-)
-
-target_include_directories(crypto_rsa_decrypt PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(crypto_rsa_decrypt PRIVATE helper OpenSSL::Crypto)
+add_sample_target(crypto_rsa_decrypt SOURCES ${SOURCE_DIR}/crypto_rsa_decrypt.c LIBS OpenSSL::Crypto crypto_data)
 
 # --- CRYPTO_AES_ENCRYPT ---
 
-add_executable( crypto_aes_encrypt
-    ${SOURCE_DIR}/crypto_aes_encrypt.c
-)
-
-target_include_directories(crypto_aes_encrypt PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(crypto_aes_encrypt PRIVATE helper OpenSSL::Crypto)
+add_sample_target(crypto_aes_encrypt SOURCES ${SOURCE_DIR}/crypto_aes_encrypt.c LIBS OpenSSL::Crypto crypto_data)
 
 # --- CRYPTO_AES_DECRYPT ---
 
-add_executable( crypto_aes_decrypt
-    ${SOURCE_DIR}/crypto_aes_decrypt.c
-)
-
-target_include_directories(crypto_aes_decrypt PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(crypto_aes_decrypt PRIVATE helper OpenSSL::Crypto)
+add_sample_target(crypto_aes_decrypt SOURCES ${SOURCE_DIR}/crypto_aes_decrypt.c LIBS OpenSSL::Crypto crypto_data)
 
 # --- CRYPTO_RSA_KEYGEN ---
 
-add_executable( crypto_rsa_keygen
-    ${SOURCE_DIR}/crypto_rsa_keygen.c
-)
-
-target_include_directories(crypto_rsa_keygen PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(crypto_rsa_keygen PRIVATE helper OpenSSL::Crypto)
+add_sample_target(crypto_rsa_keygen SOURCES ${SOURCE_DIR}/crypto_rsa_keygen.c LIBS OpenSSL::Crypto)
 
 # --- CRYPTO_EC_KEYGEN ---
 
-add_executable( crypto_ec_keygen
-    ${SOURCE_DIR}/crypto_ec_keygen.c
-)
-
-target_include_directories(crypto_ec_keygen PRIVATE ${INCLUDE_DIRS} ${OPENSSL_INCLUDE_DIR})
-target_link_libraries(crypto_ec_keygen PRIVATE helper OpenSSL::Crypto)
+add_sample_target(crypto_ec_keygen SOURCES ${SOURCE_DIR}/crypto_ec_keygen.c LIBS OpenSSL::Crypto)
 
 #########################################################
 ###   GZIP                                            ###
@@ -214,21 +149,11 @@ target_link_libraries(crypto_ec_keygen PRIVATE helper OpenSSL::Crypto)
 
 # --- GZIP_DEFLATE ---
 
-add_executable( gzip_deflate
-    ${SOURCE_DIR}/gzip_deflate.c
-)
-
-target_include_directories(gzip_deflate PRIVATE ${INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(gzip_deflate PRIVATE helper ${ZLIB_LIBRARIES})
+add_sample_target(gzip_deflate SOURCES ${SOURCE_DIR}/gzip_deflate.c LIBS ZLIB::ZLIB config)
 
 # --- GZIP_INFLATE ---
 
-add_executable( gzip_inflate
-    ${SOURCE_DIR}/gzip_inflate.c
-)
-
-target_include_directories(gzip_inflate PRIVATE ${INCLUDE_DIRS} ${ZLIB_INCLUDE_DIRS})
-target_link_libraries(gzip_inflate PRIVATE helper ${ZLIB_LIBRARIES})
+add_sample_target(gzip_inflate SOURCES ${SOURCE_DIR}/gzip_inflate.c LIBS ZLIB::ZLIB config)
 
 #########################################################
 ###   SORT                                            ###
@@ -236,21 +161,11 @@ target_link_libraries(gzip_inflate PRIVATE helper ${ZLIB_LIBRARIES})
 
 # --- SORT_QUICK ---
 
-add_executable( sort_quick
-    ${SOURCE_DIR}/sort_quick.c
-)
-
-target_include_directories(sort_quick PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(sort_quick PRIVATE helper)
+add_sample_target(sort_quick)
 
 # --- SORT_SELECTION ---
 
-add_executable( sort_selection
-    ${SOURCE_DIR}/sort_selection.c
-)
-
-target_include_directories(sort_selection PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(sort_selection PRIVATE helper)
+add_sample_target(sort_selection)
 
 #########################################################
 ###   MISC                                            ###
@@ -258,19 +173,9 @@ target_link_libraries(sort_selection PRIVATE helper)
 
 # --- FFT ---
 
-add_executable( fft
-    ${SOURCE_DIR}/fft.c
-)
-
-target_include_directories(fft PRIVATE ${INCLUDE_DIRS} ${FFTW3_INCLUDE_DIRS})
-target_link_libraries(fft PRIVATE helper FFTW3::fftw3 m)
+add_sample_target(fft LIBS FFTW3::fftw3 m)
 
 # --- PTR_CHASE ---
 
-add_executable( ptr_chase
-    ${SOURCE_DIR}/ptr_chase.c
-)
-
-target_include_directories(ptr_chase PRIVATE ${INCLUDE_DIRS})
-target_link_libraries(ptr_chase PRIVATE helper)
+add_sample_target(ptr_chase)
 

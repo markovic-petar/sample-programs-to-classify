@@ -1,5 +1,4 @@
-BUILD_DIR=../build
-BUILD_ARM_DIR=../build_arm
+#!/bin/bash
+set -e
 
-rm -rf $BUILD_DIR
-rm -rf $BUILD_ARM_DIR
+rm -rf "../build"

@@ -1,0 +1,48 @@
+{
+  "version": 4,
+  "configurePresets": [
+    {
+      "name": "debug-x86",
+      "displayName": "Debug x86_64 (local)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build/debug-x86",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "debug-arm",
+      "displayName": "Debug ARM Cortex-A8 (QEMU / gdbserver)",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build/debug-arm",
+      "toolchainFile": "${sourceDir}/toolchain-arm.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "release-arm",
+      "displayName": "Release ARM Cortex-A8",
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/../build/release-arm",
+      "toolchainFile": "${sourceDir}/toolchain-arm.cmake",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "debug-x86",
+      "configurePreset": "debug-x86"
+    },
+    {
+      "name": "debug-arm",
+      "configurePreset": "debug-arm"
+    },
+    {
+      "name": "release-arm",
+      "configurePreset": "release-arm"
+    }
+  ]
+}
