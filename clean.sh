@@ -1,4 +1,5 @@
 #!/bin/bash
 set -e
 
-rm -rf "../build"
+cd "$(dirname "$0")"
+rm -rf build
