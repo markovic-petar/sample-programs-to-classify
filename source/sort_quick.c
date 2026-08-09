@@ -58,12 +58,12 @@ int main(int argc, char** argv) {
     size_t dim = 10000;
     arr_initial = malloc(sizeof(int)*dim);
     if (!arr_initial) {
-        fprintf(stderr, "Malloc failed\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Malloc failed\n");
         goto cleanup;
     }
     arr = malloc(sizeof(int)*dim);
     if (!arr) {
-        fprintf(stderr, "Malloc failed\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Malloc failed\n");
         goto cleanup;
     }
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
 
     time_t duration = 0;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK) {
-        fprintf(stderr, "Invalid time argument\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Invalid time argument\n");
         goto cleanup;
     }
 

@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 
     /* Read plaintext */
     if (io_fread_to_char_buf("plaintext.txt", &plain, &plain_len)) {
-        fprintf(stderr, "Fread failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fread failed.\n");
         goto err;
     }
     
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
-        fprintf(stderr, "Invalid time argument.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Invalid time argument.\n");
         goto err;
     }
 

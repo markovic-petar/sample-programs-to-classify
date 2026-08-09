@@ -32,7 +32,7 @@ static int dump_key(const EVP_PKEY *pkey)
 
     /* Output a PEM encoding of the public key. */
     if (PEM_write_PUBKEY(stdout, pkey) == 0) {
-        fprintf(stderr, "Failed to output PEM-encoded public key\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to output PEM-encoded public key\n");
         goto cleanup;
     }
 
@@ -42,7 +42,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * the key if you are storing it on disk. See PEM_write_PrivateKey(3).
      */
     if (PEM_write_PrivateKey(stdout, pkey, NULL, NULL, 0, NULL, NULL) == 0) {
-        fprintf(stderr, "Failed to output PEM-encoded private key\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to output PEM-encoded private key\n");
         goto cleanup;
     }
 
@@ -64,7 +64,7 @@ int main(int argc, char** argv)
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
-        fprintf(stderr, "Input error. Correct usage: %s [seconds]\n", argv[0]);
+        fprintf(stderr, PROGRAM_NAME ": " "Input error. Correct usage: %s [seconds]\n", argv[0]);
         goto cleanup;
     }
 
@@ -75,14 +75,14 @@ int main(int argc, char** argv)
         pkey = generate_ec_key_short(libctx, curvename);
         if (pkey == NULL)
         {
-            fprintf(stderr, "EVP_PKEY_Q_keygen() failed\n");
+            fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_Q_keygen() failed\n");
             goto cleanup;
         }
     }
     
     /* Dump the integers comprising the key. */
     if (dump_key(pkey) == 0) {
-        fprintf(stderr, "Failed to dump key\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to dump key\n");
         goto cleanup;
     }
 

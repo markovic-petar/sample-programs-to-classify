@@ -112,14 +112,14 @@ int main(int argc, char** argv) {
 
     /* Create pointer chain */
     if (create_random_chain(&memory, memsize)) {
-        fprintf(stderr, "Pointer chain creation failed\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Pointer chain creation failed\n");
         goto cleanup;
     }
 
     /* Get time duration */
     time_t duration = 0;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK) {
-        fprintf(stderr, "Invalid time argument\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Invalid time argument\n");
         goto cleanup;
     }
 
@@ -130,7 +130,7 @@ int main(int argc, char** argv) {
     do {
         unsigned int rand_offs = 0;
         if (rng_uint(&rand_offs) != RNG_OK) {
-            fprintf(stderr, "rng_uint() failed\n");
+            fprintf(stderr, PROGRAM_NAME ": " "rng_uint() failed\n");
             goto cleanup;
         }
         // chase_pointers(memory + (rand_offs % len), len);

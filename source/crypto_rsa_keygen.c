@@ -49,7 +49,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * a new BIGNUM to be allocated, so these must be freed subsequently.
      */
     if (EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_RSA_N, &n) == 0) {
-        fprintf(stderr, "Failed to retrieve n\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to retrieve n\n");
         goto cleanup;
     }
 
@@ -58,7 +58,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * public key. It is typically 65537 and need not be changed.
      */
     if (EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_RSA_E, &e) == 0) {
-        fprintf(stderr, "Failed to retrieve e\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to retrieve e\n");
         goto cleanup;
     }
 
@@ -67,7 +67,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * key. It must not be published.
      */
     if (EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_RSA_D, &d) == 0) {
-        fprintf(stderr, "Failed to retrieve d\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to retrieve d\n");
         goto cleanup;
     }
 
@@ -76,7 +76,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * is secret and forms part of the private key. It must not be published.
      */
     if (EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_RSA_FACTOR1, &p) == 0) {
-        fprintf(stderr, "Failed to retrieve p\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to retrieve p\n");
         goto cleanup;
     }
 
@@ -89,7 +89,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * OSSL_PKEY_PARAM_RSA_FACTOR3, etc.
      */
     if (EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_RSA_FACTOR2, &q) == 0) {
-        fprintf(stderr, "Failed to retrieve q\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to retrieve q\n");
         goto cleanup;
     }
 
@@ -97,7 +97,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * We can also retrieve the key size in bits for informational purposes.
      */
     if (EVP_PKEY_get_int_param(pkey, OSSL_PKEY_PARAM_BITS, &bits) == 0) {
-        fprintf(stderr, "Failed to retrieve bits\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to retrieve bits\n");
         goto cleanup;
     }
 
@@ -127,7 +127,7 @@ static int dump_key(const EVP_PKEY *pkey)
 
     /* Output a PEM encoding of the public key. */
     if (PEM_write_PUBKEY(stdout, pkey) == 0) {
-        fprintf(stderr, "Failed to output PEM-encoded public key\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to output PEM-encoded public key\n");
         goto cleanup;
     }
 
@@ -137,7 +137,7 @@ static int dump_key(const EVP_PKEY *pkey)
      * the key if you are storing it on disk. See PEM_write_PrivateKey(3).
      */
     if (PEM_write_PrivateKey(stdout, pkey, NULL, NULL, 0, NULL, NULL) == 0) {
-        fprintf(stderr, "Failed to output PEM-encoded private key\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to output PEM-encoded private key\n");
         goto cleanup;
     }
 
@@ -163,7 +163,7 @@ int main(int argc, char** argv)
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
-        fprintf(stderr, "Input error. Correct usage: %s [seconds]\n", argv[0]);
+        fprintf(stderr, PROGRAM_NAME ": " "Input error. Correct usage: %s [seconds]\n", argv[0]);
         goto cleanup;
     }
 
@@ -174,14 +174,14 @@ int main(int argc, char** argv)
         pkey = generate_rsa_key_short(libctx, bits);
         if (pkey == NULL)
         {
-            fprintf(stderr, "EVP_PKEY_Q_keygen() failed\n");
+            fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_Q_keygen() failed\n");
             goto cleanup;
         }
     }
     
     /* Dump the integers comprising the key. */
     if (dump_key(pkey) == 0) {
-        fprintf(stderr, "Failed to dump key\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Failed to dump key\n");
         goto cleanup;
     }
 

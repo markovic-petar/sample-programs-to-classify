@@ -73,33 +73,33 @@ int main(int argc, char* argv[])
 
     // Init. the hw. rng. source
     if (rng_open() != RNG_OK)
-        { err = -1; goto cleanup; }
+        { fprintf(stderr, PROGRAM_NAME ": rng_open() failed\n"); err = -1; goto cleanup; }
 
     // Allocate matrices
     int *a = NULL, *b = NULL, *c = NULL;
 
     a = (int*)malloc(M * N * sizeof(int));
-    if (!a) { err = -1; goto cleanup; }
+    if (!a) { fprintf(stderr, PROGRAM_NAME ": Malloc failed\n"); err = -1; goto cleanup; }
 
     b = (int*)malloc(N * P * sizeof(int));
-    if (!b) { err = -1; goto cleanup; }
+    if (!b) { fprintf(stderr, PROGRAM_NAME ": Malloc failed\n"); err = -1; goto cleanup; }
 
     c = (int*)malloc(M * P * sizeof(int));
-    if (!c) { err = -1; goto cleanup; }
+    if (!c) { fprintf(stderr, PROGRAM_NAME ": Malloc failed\n"); err = -1; goto cleanup; }
 
     // Init. vectors with random data
     if (rng_int_vector(a, M * N) != RNG_OK)
-        { err = -1; goto cleanup; }
+        { fprintf(stderr, PROGRAM_NAME ": rng_int_vector() failed\n"); err = -1; goto cleanup; }
 
     if (rng_int_vector(b, N * P) != RNG_OK)
-        { err = -1; goto cleanup; }
+        { fprintf(stderr, PROGRAM_NAME ": rng_int_vector() failed\n"); err = -1; goto cleanup; }
 
     // Get program repeat duration
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
         // bad input
-        printf("Input error. Correct usage: %s [seconds]", argv[0]);
+        fprintf(stderr, PROGRAM_NAME ": Input error. Correct usage: %s [seconds]\n", argv[0]);
         err = -1;
         goto cleanup;
     }

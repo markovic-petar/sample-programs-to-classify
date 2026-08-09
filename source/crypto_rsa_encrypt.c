@@ -115,29 +115,29 @@ int main(int argc, char** argv)
     /* Get public key */
     pub_key = get_key(libctx, propq, public);
     if (pub_key == NULL) {
-        fprintf(stderr, "Get public key failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Get public key failed.\n");
         goto cleanup;
     }
     pkey_ctx = EVP_PKEY_CTX_new_from_pkey(libctx, pub_key, propq);
     if (pkey_ctx == NULL) {
-        fprintf(stderr, "EVP_PKEY_CTX_new_from_pkey() failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_CTX_new_from_pkey() failed.\n");
         goto cleanup;
     }
     set_optional_params(params, propq);
     /* If no optional parameters are required then NULL can be passed */
     if (EVP_PKEY_encrypt_init_ex(pkey_ctx, params) <= 0) {
-        fprintf(stderr, "EVP_PKEY_encrypt_init_ex() failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_encrypt_init_ex() failed.\n");
         goto cleanup;
     }
     /* Calculate the size required to hold the encrypted data */
     if (EVP_PKEY_encrypt(pkey_ctx, NULL, &encrypted_len, msg, msg_len) <= 0) {
-        fprintf(stderr, "EVP_PKEY_encrypt() failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_encrypt() failed.\n");
         goto cleanup;
     }
     /* Allocate the buffer for encrypted data */
     encrypted = OPENSSL_zalloc(encrypted_len);
     if (encrypted  == NULL) {
-        fprintf(stderr, "Malloc failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Malloc failed.\n");
         goto cleanup;
     }
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
-        fprintf(stderr, "Input error. Correct usage: %s [seconds]\n", argv[0]);
+        fprintf(stderr, PROGRAM_NAME ": " "Input error. Correct usage: %s [seconds]\n", argv[0]);
         goto cleanup;
     }
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
         /* !!! Perform encryption !!! */
         tmp_encrypted_len = encrypted_len;
         if (EVP_PKEY_encrypt(pkey_ctx, encrypted, &tmp_encrypted_len, msg, msg_len) <= 0) {
-            fprintf(stderr, "EVP_PKEY_encrypt() failed.\n");
+            fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_encrypt() failed.\n");
             goto cleanup;
         }
     }
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
     encrypted_len = tmp_encrypted_len;
     if (io_fwrite_from_char_buf(file_name, encrypted, encrypted_len))
     {
-        fprintf(stderr, "Fwrite failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fwrite failed.\n");
         goto cleanup;
     }
 

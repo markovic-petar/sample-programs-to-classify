@@ -108,36 +108,36 @@ int main(int argc, char** argv)
     /* Open decrypted data */
     if (io_fread_to_char_buf(file_name, &msg, &msg_len))
     {
-        fprintf(stderr, "Fread failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fread failed.\n");
         goto cleanup;
     }
 
     /* Get private key */
     priv_key = get_key(libctx, propq, public);
     if (priv_key == NULL) {
-        fprintf(stderr, "Get public key failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Get public key failed.\n");
         goto cleanup;
     }
     pkey_ctx = EVP_PKEY_CTX_new_from_pkey(libctx, priv_key, propq);
     if (pkey_ctx == NULL) {
-        fprintf(stderr, "EVP_PKEY_CTX_new_from_pkey() failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_CTX_new_from_pkey() failed.\n");
         goto cleanup;
     }
     set_optional_params(params, propq);
     /* If no optional parameters are required then NULL can be passed */
     if (EVP_PKEY_decrypt_init_ex(pkey_ctx, params) <= 0) {
-        fprintf(stderr, "EVP_PKEY_encrypt_init_ex() failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_encrypt_init_ex() failed.\n");
         goto cleanup;
     }
     /* Calculate the size required to hold the decrypted data */
     if (EVP_PKEY_decrypt(pkey_ctx, NULL, &decrypted_len, msg, msg_len) <= 0) {
-        fprintf(stderr, "EVP_PKEY_decrypt() failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_decrypt() failed.\n");
         goto cleanup;
     }
     /* Allocate the buffer for decrypted data */
     decrypted = OPENSSL_zalloc(decrypted_len);
     if (decrypted  == NULL) {
-        fprintf(stderr, "Malloc failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Malloc failed.\n");
         goto cleanup;
     }
 
@@ -145,7 +145,7 @@ int main(int argc, char** argv)
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
-        printf("Input error. Correct usage: %s [seconds]", argv[0]);
+        fprintf(stderr, PROGRAM_NAME ": Input error. Correct usage: %s [seconds]\n", argv[0]);
         goto cleanup;
     }
 
@@ -156,7 +156,7 @@ int main(int argc, char** argv)
         /* !!! Perform decryption !!! */
         tmp_decrypted_len = decrypted_len;
         if (EVP_PKEY_decrypt(pkey_ctx, decrypted, &tmp_decrypted_len, msg, msg_len) <= 0) {
-            fprintf(stderr, "EVP_PKEY_decrypt() failed.\n");
+            fprintf(stderr, PROGRAM_NAME ": " "EVP_PKEY_decrypt() failed.\n");
             goto cleanup;
         }
     }

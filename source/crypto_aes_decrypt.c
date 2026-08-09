@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
 
     /* Read input */
     if (io_fread_to_char_buf("encrypted_aes.txt", &encrypted, &encrypted_len)) {
-        fprintf(stderr, "Fread failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fread failed.\n");
         goto err;
     }
 
@@ -62,13 +62,13 @@ int main(int argc, char** argv) {
 
     /* Create a context for the decrypt operation */
     if ((ctx = EVP_CIPHER_CTX_new()) == NULL) {
-        fprintf(stderr, "EVP cipher context creation failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP cipher context creation failed.\n");
         goto err;
     }
 
     /* Fetch the cipher implementation */
     if ((cipher = EVP_CIPHER_fetch(libctx, "AES-256-GCM", propq)) == NULL) {
-        fprintf(stderr, "EVP cipher implementation fetch failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "EVP cipher implementation fetch failed.\n");
         goto err;
     }
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     /* Get program repeat duration */
     time_t duration;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK) {
-        fprintf(stderr, "Invalid time argument.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Invalid time argument.\n");
         goto err;
     }
 
@@ -94,13 +94,13 @@ int main(int argc, char** argv) {
         * would be NULL.
         */
         if (!EVP_DecryptInit_ex2(ctx, cipher, gcm_key, gcm_iv, params)) {
-            fprintf(stderr, "EVP decrypt init. failed.\n");
+            fprintf(stderr, PROGRAM_NAME ": " "EVP decrypt init. failed.\n");
             goto err;
         }
 
         /* !!! Decrypt plaintext !!! */
         if (!EVP_DecryptUpdate(ctx, decrypted, &outl, encrypted, inl)) {
-            fprintf(stderr, "EVP decrypt init. failed.\n");
+            fprintf(stderr, PROGRAM_NAME ": " "EVP decrypt init. failed.\n");
             goto err;
         }
     }

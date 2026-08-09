@@ -58,19 +58,19 @@ int main(int argc, char** argv) {
     /* Allocate input/output buffers */
     in = fftw_alloc_real(N);
     if (!in) {
-        fprintf(stderr, "fftw_malloc_real() failed\n");
+        fprintf(stderr, PROGRAM_NAME ": " "fftw_malloc_real() failed\n");
         goto cleanup;
     }
     out = fftw_alloc_complex(N);
     if (!out) {
-        fprintf(stderr, "fftw_malloc_complex() failed\n");
+        fprintf(stderr, PROGRAM_NAME ": " "fftw_malloc_complex() failed\n");
         goto cleanup;
     }
 
     /* Create plan */
     plan = fftw_plan_dft_r2c_1d(N, in, out, FFTW_ESTIMATE);
     if (!plan) {
-        fprintf(stderr, "Plan creation failed\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Plan creation failed\n");
         goto cleanup;
     }
 
@@ -86,7 +86,7 @@ int main(int argc, char** argv) {
     /* Input time duration */
     time_t duration = 0;
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK) {
-        fprintf(stderr, "Invalid time argument\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Invalid time argument\n");
         goto cleanup;
     }
 

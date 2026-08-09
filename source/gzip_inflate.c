@@ -54,20 +54,20 @@ int main(int argc, char **argv) {
 
     /* Read input file */
     if (io_fread_to_char_buf("deflate.gz", &in, &in_len)) {
-        fprintf(stderr, "Fread failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fread failed.\n");
         goto cleanup;
     }
 
     /* Read the uncompressed file size into 'out_len' */
     if (io_fread_to_char_buf("plaintext.txt", NULL, &out_len)) {
-        fprintf(stderr, "Fread len. failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fread len. failed.\n");
         goto cleanup;
     }
 
     /* Allocate output buffer */;
     out = malloc(out_len);
     if (!out) {
-        fprintf(stderr, "Malloc failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Malloc failed.\n");
         goto cleanup;
     }
 
@@ -75,7 +75,7 @@ int main(int argc, char **argv) {
     time_t duration; size_t duration_argv_ix = 1;
     ret = io_time_from_args(argc, argv, &duration, duration_argv_ix);
     if (ret != IO_OK) {
-        fprintf(stderr, "Invalid time argument.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Invalid time argument.\n");
         goto cleanup;
     }
 
@@ -90,20 +90,20 @@ int main(int argc, char **argv) {
 
         int zret = inflate(&strm, Z_FINISH);
         if (zret != Z_STREAM_END) {
-            fprintf(stderr, "Inflate failed.\n");
+            fprintf(stderr, PROGRAM_NAME ": " "Inflate failed.\n");
             goto cleanup;
         }
 
         /* Reset the stream for repetition */
         if (inflateReset(&strm) != Z_OK)  {
-            fprintf(stderr, "InflateReset failed.\n");
+            fprintf(stderr, PROGRAM_NAME ": " "InflateReset failed.\n");
             goto cleanup;
         }
     } while (time(NULL) - start_time < duration);
 
     size_t used_out = out_len - strm.avail_out;
     if(io_fwrite_from_char_buf("inflate.txt", out, used_out)) {
-        fprintf(stderr, "Fwrite failed.\n");
+        fprintf(stderr, PROGRAM_NAME ": " "Fwrite failed.\n");
         goto cleanup;
     }
 

@@ -49,6 +49,7 @@ function(add_sample_target name)
 
     add_executable(${name} ${ARG_SOURCES})
     target_link_libraries(${name} PRIVATE helper ${ARG_LIBS})
+    target_compile_definitions(${name} PRIVATE PROGRAM_NAME="${name}")
 endfunction()
 
 # --- CONFIG (header-only) ---

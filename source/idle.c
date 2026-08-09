@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
     if (io_time_from_args(argc, argv, &duration, 1) != IO_OK)
     {
         // bad input
-        printf("Input error. Correct usage: %s [seconds]\n", argv[0]);
+        fprintf(stderr, PROGRAM_NAME ": Input error. Correct usage: %s [seconds]\n", argv[0]);
         return -1;
     }
 
