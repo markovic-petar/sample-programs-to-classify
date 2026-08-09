@@ -15,14 +15,14 @@ if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64")
     message(STATUS "Configuring for host (x86_64)...")
     set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/openssl/out/x64")
     set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib/out/x64/install")
-    set(FFTW3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/fftw-3.3.10/out/x64/install")
+    set(FFTW3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/fftw/out/x64/install")
 
 elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm")
 
     message(STATUS "Configuring for ARM Cortex-A8...")
     set(OPENSSL_ROOT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib/openssl/out/arm-static")
     set(ZLIB_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/zlib/out/arm-static/install")
-    set(FFTW3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/fftw-3.3.10/out/arm-static/install")
+    set(FFTW3_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/lib/fftw/out/arm-static/install")
 
 else()
 
