@@ -33,7 +33,7 @@ int main(int argc, char** argv)
      */
     static OSSL_LIB_CTX *libctx = NULL;
     static const char *propq = NULL;
-    EVP_CIPHER_CTX *ctx;
+    EVP_CIPHER_CTX *ctx = NULL;
     EVP_CIPHER *cipher = NULL;
     int outlen, tmplen;  // ??
     size_t gcm_ivlen = sizeof(gcm_iv);
@@ -50,8 +50,10 @@ int main(int argc, char** argv)
     int inl, outl;
 
     /* Read plaintext */
-    if (io_fread_to_char_buf("plaintext.txt", &plain, &plain_len))
+    if (io_fread_to_char_buf("plaintext.txt", &plain, &plain_len)) {
+        fprintf(stderr, "Fread failed.\n");
         goto err;
+    }
     
     /* Convert from size_t to int for EncryptUpdate */
     if (plain_len > INT_MAX)

@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
      */
     static OSSL_LIB_CTX *libctx = NULL;
     static const char *propq = NULL;
-    EVP_CIPHER_CTX *ctx;
+    EVP_CIPHER_CTX *ctx = NULL;
     EVP_CIPHER *cipher = NULL;
     size_t gcm_ivlen = sizeof(gcm_iv);
     OSSL_PARAM params[2] = {
@@ -47,6 +47,7 @@ int main(int argc, char** argv) {
 
     /* Read input */
     if (io_fread_to_char_buf("encrypted_aes.txt", &encrypted, &encrypted_len)) {
+        fprintf(stderr, "Fread failed.\n");
         goto err;
     }
 
