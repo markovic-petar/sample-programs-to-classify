@@ -1,0 +1,9 @@
+{
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.configurePreset": "debug-x86",
+    "cmake.debugConfig": {
+        "args": ["1"],
+        "cwd": "${workspaceFolder}/program_files",
+        "MIMode": "gdb"
+    }
+}
